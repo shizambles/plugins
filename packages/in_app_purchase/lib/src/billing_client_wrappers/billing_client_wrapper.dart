@@ -168,11 +168,17 @@ class BillingClient {
   /// and [the given
   /// accountId](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.Builder.html#setAccountId(java.lang.String)).
   Future<BillingResultWrapper> launchBillingFlow(
-      {@required String sku, String accountId}) async {
+      {@required String sku,
+      String accountId,
+      String oldSku,
+      ProrationMode prorationMode}) async {
     assert(sku != null);
     final Map<String, dynamic> arguments = <String, dynamic>{
       'sku': sku,
       'accountId': accountId,
+      'oldSku': oldSku,
+      'prorationMode': ProrationModeConverter().toJson(prorationMode ??
+          ProrationMode.unknownSubscriptionUpgradeDowngradePolicy)
     };
     return BillingResultWrapper.fromJson(
         await channel.invokeMapMethod<String, dynamic>(
@@ -360,4 +366,30 @@ enum SkuType {
   /// A product requiring a recurring charge over time.
   @JsonValue('subs')
   subs,
+}
+
+/// Enum representing the proration mode. When upgrading or downgrading a subscription,
+/// set this mode to provide details about the proration that will be applied
+/// when the subscription changes.
+///
+/// Wraps [`BillingFlowParams.ProrationMode`](https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.ProrationMode)
+/// See the linked documentation for an explanation of the different constants.
+enum ProrationMode {
+  // WARNING: Changes to this class need to be reflected in our generated code.
+  // Run `flutter packages pub run build_runner watch` to rebuild and watch for
+  // further changes.
+  @JsonValue(0)
+  unknownSubscriptionUpgradeDowngradePolicy,
+
+  @JsonValue(1)
+  immediateWithTimeProration,
+
+  @JsonValue(2)
+  immediateAndChargeProratedPrice,
+
+  @JsonValue(3)
+  immediateWithoutProration,
+
+  @JsonValue(4)
+  deferred,
 }

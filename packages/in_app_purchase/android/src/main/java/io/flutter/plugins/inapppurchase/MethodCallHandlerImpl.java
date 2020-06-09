@@ -20,6 +20,7 @@ import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.BillingFlowParams.ProrationMode;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.ConsumeParams;
 import com.android.billingclient.api.ConsumeResponseListener;
@@ -120,7 +121,11 @@ class MethodCallHandlerImpl
         break;
       case InAppPurchasePlugin.MethodNames.LAUNCH_BILLING_FLOW:
         launchBillingFlow(
-            (String) call.argument("sku"), (String) call.argument("accountId"), result);
+            (String) call.argument("sku"), (String) call.argument("accountId"),
+            (String) call.argument("oldSku"), call.hasArgument("prorationMode")
+                        ? (int) call.argument("prorationMode")
+                    : ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY,
+            result);
         break;
       case InAppPurchasePlugin.MethodNames.QUERY_PURCHASES:
         queryPurchases((String) call.argument("skuType"), result);
@@ -189,7 +194,8 @@ class MethodCallHandlerImpl
   }
 
   private void launchBillingFlow(
-      String sku, @Nullable String accountId, MethodChannel.Result result) {
+      String sku, @Nullable String accountId, @Nullable String oldSku, int prorationModeValue,
+      MethodChannel.Result result) {
     if (billingClientError(result)) {
       return;
     }
@@ -201,6 +207,28 @@ class MethodCallHandlerImpl
           "Details for sku " + sku + " are not available. Has this ID already been fetched?",
           null);
       return;
+    }
+
+    if (oldSku != null) {
+      SkuDetails oldSkuDetails = cachedSkus.get(oldSku);
+      if (oldSkuDetails == null) {
+        result.error(
+                "NOT_FOUND",
+                "Details for old sku " + sku + " are not available. Has this ID already been fetched?",
+                null);
+        return;
+      }
+    }
+
+    final int prorationMode = getProrationMode(prorationModeValue);
+    if (prorationMode != ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY) {
+      if (oldSku == null) {
+        result.error(
+                "NOT_FOUND",
+                "oldSku is not available. You must provide the oldSku inorder to use a proration mode.",
+                null);
+        return;
+      }
     }
 
     if (activity == null) {
@@ -218,9 +246,28 @@ class MethodCallHandlerImpl
     if (accountId != null && !accountId.isEmpty()) {
       paramsBuilder.setAccountId(accountId);
     }
+    if (oldSku != null && !oldSku.isEmpty()) {
+      paramsBuilder.setOldSku(oldSku);
+    }
+    paramsBuilder.setReplaceSkusProrationMode(prorationMode);
     result.success(
         Translator.fromBillingResult(
             billingClient.launchBillingFlow(activity, paramsBuilder.build())));
+  }
+
+  private int getProrationMode(final int prorationModeValue) {
+    switch (prorationModeValue) {
+      case 1:
+        return ProrationMode.IMMEDIATE_WITH_TIME_PRORATION;
+      case 2:
+        return ProrationMode.IMMEDIATE_AND_CHARGE_PRORATED_PRICE;
+      case 3:
+        return ProrationMode.IMMEDIATE_WITHOUT_PRORATION;
+      case 4:
+        return ProrationMode.DEFERRED;
+      default:
+        return ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY;
+    }
   }
 
   private void consumeAsync(

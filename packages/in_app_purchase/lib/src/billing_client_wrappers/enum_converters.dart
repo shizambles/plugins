@@ -38,12 +38,28 @@ class SkuTypeConverter implements JsonConverter<SkuType, String> {
   String toJson(SkuType object) => _$SkuTypeEnumMap[object];
 }
 
+/// Serializer for [ProrationMode].
+///
+/// Use these in `@JsonSerializable()` classes by annotating them with
+/// `@ProrationModeConverter()`.
+class ProrationModeConverter implements JsonConverter<ProrationMode, int> {
+  const ProrationModeConverter();
+
+  @override
+  ProrationMode fromJson(int json) => _$enumDecode<ProrationMode>(
+      _$ProrationModeEnumMap.cast<ProrationMode, dynamic>(), json);
+
+  @override
+  int toJson(ProrationMode object) => _$ProrationModeEnumMap[object];
+}
+
 // Define a class so we generate serializer helper methods for the enums
 @JsonSerializable()
 class _SerializedEnums {
   BillingResponse response;
   SkuType type;
   PurchaseStateWrapper purchaseState;
+  ProrationMode prorationMode;
 }
 
 /// Serializer for [PurchaseStateWrapper].

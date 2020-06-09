@@ -7,6 +7,8 @@ import 'package:in_app_purchase/src/billing_client_wrappers/enum_converters.dart
 import 'package:in_app_purchase/src/billing_client_wrappers/purchase_wrapper.dart';
 import 'package:in_app_purchase/src/store_kit_wrappers/enum_converters.dart';
 import 'package:in_app_purchase/src/store_kit_wrappers/sk_payment_transaction_wrappers.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import './in_app_purchase_connection.dart';
 import './product_details.dart';
 
@@ -79,7 +81,8 @@ class PurchaseParam {
   PurchaseParam(
       {@required this.productDetails,
       this.applicationUserName,
-      this.sandboxTesting});
+      this.sandboxTesting,
+      this.changeSubscriptionParam});
 
   /// The product to create payment for.
   ///
@@ -96,6 +99,33 @@ class PurchaseParam {
 
   /// The 'sandboxTesting' is only available on iOS, set it to `true` for testing in AppStore's sandbox environment. The default value is `false`.
   final bool sandboxTesting;
+
+  /// The 'changeSubscriptionParam' is only available on Android, for upgrading or
+  /// downgrading an existing subscription.
+  final ChangeSubscriptionParam changeSubscriptionParam;
+}
+
+/// The parameter object for upgrading or downgrading an existing subscription so that
+/// the user can only purchase one subscription in a group at a time. This object
+/// is only applicable for Android.
+///
+/// This object does not require on iOS since Apple provides a way to create a
+/// 'subscription group' in the iTunesConnect portal itself.
+@JsonSerializable()
+@ProrationModeConverter()
+class ChangeSubscriptionParam {
+  ChangeSubscriptionParam(
+      {@required this.oldPurchaseDetails, this.prorationMode});
+
+  /// The old product object of the existing subscription that the user needs to
+  /// change from.
+  final PurchaseDetails oldPurchaseDetails;
+
+  /// The proration mode.
+  ///
+  /// This is an optional parameter that indicates how to handle the existing
+  /// subscription when the new subscription comes into effect.
+  final ProrationMode prorationMode;
 }
 
 /// Represents the transaction details of a purchase.

@@ -1,3 +1,7 @@
+## 0.3.5
+
+* Support InApp subscription upgrade/downgrade.
+
 ## 0.3.4+3
 
 * Fixed typo 'manuelly' for 'manually'.
