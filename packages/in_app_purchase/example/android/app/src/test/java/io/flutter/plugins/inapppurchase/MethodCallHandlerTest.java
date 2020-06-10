@@ -307,16 +307,16 @@ public class MethodCallHandlerTest {
 
     // Launch the billing flow
     BillingResult billingResult =
-            BillingResult.newBuilder()
-                    .setResponseCode(100)
-                    .setDebugMessage("dummy debug message")
-                    .build();
+        BillingResult.newBuilder()
+            .setResponseCode(100)
+            .setDebugMessage("dummy debug message")
+            .build();
     when(mockBillingClient.launchBillingFlow(any(), any())).thenReturn(billingResult);
     methodChannelHandler.onMethodCall(launchCall, result);
 
     // Verify we pass the arguments to the billing flow
     ArgumentCaptor<BillingFlowParams> billingFlowParamsCaptor =
-            ArgumentCaptor.forClass(BillingFlowParams.class);
+        ArgumentCaptor.forClass(BillingFlowParams.class);
     verify(mockBillingClient).launchBillingFlow(any(), billingFlowParamsCaptor.capture());
     BillingFlowParams params = billingFlowParamsCaptor.getValue();
     assertEquals(params.getSku(), skuId);
@@ -432,16 +432,16 @@ public class MethodCallHandlerTest {
 
     // Launch the billing flow
     BillingResult billingResult =
-            BillingResult.newBuilder()
-                    .setResponseCode(100)
-                    .setDebugMessage("dummy debug message")
-                    .build();
+        BillingResult.newBuilder()
+            .setResponseCode(100)
+            .setDebugMessage("dummy debug message")
+            .build();
     when(mockBillingClient.launchBillingFlow(any(), any())).thenReturn(billingResult);
     methodChannelHandler.onMethodCall(launchCall, result);
 
     // Verify we pass the arguments to the billing flow
     ArgumentCaptor<BillingFlowParams> billingFlowParamsCaptor =
-            ArgumentCaptor.forClass(BillingFlowParams.class);
+        ArgumentCaptor.forClass(BillingFlowParams.class);
     verify(mockBillingClient).launchBillingFlow(any(), billingFlowParamsCaptor.capture());
     BillingFlowParams params = billingFlowParamsCaptor.getValue();
     assertEquals(params.getSku(), skuId);
@@ -472,10 +472,10 @@ public class MethodCallHandlerTest {
 
     // Launch the billing flow
     BillingResult billingResult =
-            BillingResult.newBuilder()
-                    .setResponseCode(100)
-                    .setDebugMessage("dummy debug message")
-                    .build();
+        BillingResult.newBuilder()
+            .setResponseCode(100)
+            .setDebugMessage("dummy debug message")
+            .build();
     when(mockBillingClient.launchBillingFlow(any(), any())).thenReturn(billingResult);
     methodChannelHandler.onMethodCall(launchCall, result);
 

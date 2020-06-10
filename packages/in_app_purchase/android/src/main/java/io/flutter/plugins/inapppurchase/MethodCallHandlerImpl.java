@@ -121,10 +121,12 @@ class MethodCallHandlerImpl
         break;
       case InAppPurchasePlugin.MethodNames.LAUNCH_BILLING_FLOW:
         launchBillingFlow(
-            (String) call.argument("sku"), (String) call.argument("accountId"),
-            (String) call.argument("oldSku"), call.hasArgument("prorationMode")
-                        ? (int) call.argument("prorationMode")
-                    : ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY,
+            (String) call.argument("sku"),
+            (String) call.argument("accountId"),
+            (String) call.argument("oldSku"),
+            call.hasArgument("prorationMode")
+                ? (int) call.argument("prorationMode")
+                : ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY,
             result);
         break;
       case InAppPurchasePlugin.MethodNames.QUERY_PURCHASES:
@@ -194,7 +196,10 @@ class MethodCallHandlerImpl
   }
 
   private void launchBillingFlow(
-      String sku, @Nullable String accountId, @Nullable String oldSku, int prorationModeValue,
+      String sku,
+      @Nullable String accountId,
+      @Nullable String oldSku,
+      int prorationModeValue,
       MethodChannel.Result result) {
     if (billingClientError(result)) {
       return;
@@ -213,9 +218,9 @@ class MethodCallHandlerImpl
       SkuDetails oldSkuDetails = cachedSkus.get(oldSku);
       if (oldSkuDetails == null) {
         result.error(
-                "NOT_FOUND",
-                "Details for old sku " + sku + " are not available. Has this ID already been fetched?",
-                null);
+            "NOT_FOUND",
+            "Details for old sku " + sku + " are not available. Has this ID already been fetched?",
+            null);
         return;
       }
     }
@@ -224,9 +229,9 @@ class MethodCallHandlerImpl
     if (prorationMode != ProrationMode.UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY) {
       if (oldSku == null) {
         result.error(
-                "NOT_FOUND",
-                "oldSku is not available. You must provide the oldSku inorder to use a proration mode.",
-                null);
+            "NOT_FOUND",
+            "oldSku is not available. You must provide the oldSku inorder to use a proration mode.",
+            null);
         return;
       }
     }
@@ -299,7 +304,8 @@ class MethodCallHandlerImpl
       return;
     }
 
-    // Like in our connect call, consider the billing client responding a "success" here regardless of status code.
+    // Like in our connect call, consider the billing client responding a "success" here regardless
+    // of status code.
     result.success(fromPurchasesResult(billingClient.queryPurchases(skuType)));
   }
 
@@ -342,7 +348,8 @@ class MethodCallHandlerImpl
               return;
             }
             alreadyFinished = true;
-            // Consider the fact that we've finished a success, leave it to the Dart side to validate the responseCode.
+            // Consider the fact that we've finished a success, leave it to the Dart side to
+            // validate the responseCode.
             result.success(Translator.fromBillingResult(billingResult));
           }
 
